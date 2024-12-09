@@ -32,8 +32,6 @@ class Note:
 
 ```
 
-## Explanation
-
 #### Attack: The note gradually reaches its maximum amplitude, determined by attack_rate.
 ```python
 def release(self):
