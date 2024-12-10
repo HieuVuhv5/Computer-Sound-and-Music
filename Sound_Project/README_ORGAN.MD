@@ -2,8 +2,7 @@
 
 Author: Hieu Vu
 
-This project is heavily based on [rhosy](https://github.com/pdx-cs-sound/rhosy), with significant modifications to support multiple wave types and effects.
-
+This project is heavily based on [rhosy](https://github.com/pdx-cs-sound/rhosy). 
 ## Introduction
 This program is a virtual keyboard organ that maps computer keyboard keys to musical notes, allowing you to play sounds in real-time. It supports three main wave types:
 
