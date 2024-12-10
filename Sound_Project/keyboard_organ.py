@@ -6,7 +6,7 @@ import argparse
 import time
 import scipy.signal as signal  # Add this line
 # Default wave shape
-wave_shape = "piano"
+wave_shape = "harmonica"
 
 # Debugging flags
 log_notes = True
@@ -18,28 +18,32 @@ blocksize = 64
 
 # MIDI note mapping for keyboard keys
 key_to_note = {
-    # Row 1: QWERTY row for C3 to D4
-    'q': 48,  # C3
-    'w': 49,  # D3
-    'e': 50,  # E3
-    'r': 51,  # F3
-    't': 52,  # G3
-    'y': 53,  # A3
-    'u': 54,  # B3
-    'i': 55,  # C4
-    'o': 56,  # D4
-    'p': 57,  # E4
-
-    # Row 2: ASDF row for C4 to D5
-    'a': 60,  # C4
-    's': 61,  # D4
-    'd': 62,  # E4
-    'f': 63,  # F4
-    'g': 64,  # G4
-    'h': 65,  # A4
-    'j': 66,  # B4
-    'k': 67,  # C5
-    'l': 68,  # D5
+    'z': 57,  # A3
+    'x': 58,  # B3
+    'c': 59,  # C4
+    'v': 60,  # D4
+    'b': 61,  # E4
+    'n': 62,  # F4
+    'm': 63,  # G4
+    'a': 64,  # A4
+    's': 65,  # B4
+    'd': 66,  # C5
+    'f': 67,  # D5
+    'g': 68,  # E5
+    'h': 69,  # F5
+    'j': 70,  # G5
+    'k': 71,  # A5
+    'l': 72,  # B5
+    'q': 73,  # C6
+    'w': 74,  # D6
+    'e': 75,  # E6
+    'r': 76,  # F6
+    't': 77,  # G6
+    'y': 78,  # A6
+    'u': 79,  # B6
+    'i': 80,  # C7
+    'o': 81,  # D7
+    'p': 82,  # E7
 }
 
 # Global variables
@@ -49,6 +53,8 @@ notes = []
 current_notes = dict()
 command_queue = queue.SimpleQueue()
 sustaining = False
+audio_buffer = []
+
 
 # Wave generation functions
 def make_midi(f):
@@ -111,79 +117,17 @@ def make_catmeow(f):
     return 0.125 * waves
 
 
-def make_piano(f):
-    # Define block size in seconds
-    block_duration = blocksize / sample_rate
-
-    # Time array for the block
-    t = np.linspace(0, block_duration, blocksize, endpoint=False)
-
-    # Piano harmonics: rich harmonic structure
-    num_harmonics = 12
-    signal = np.zeros_like(t)
-
-    # Generate the harmonics
-    for i in range(1, num_harmonics + 1):
-        harmonic_freq = f * i
-        amplitude = 1 / (i + 1)  # Decreasing amplitude for higher harmonics
-        signal += amplitude * np.sin(2 * np.pi * harmonic_freq * t)
-
-    # ADSR envelope
-    attack_time = 0.01  # 10ms
-    decay_time = 0.1   # 100ms
-    sustain_level = 0.5  # Sustain amplitude
-    release_time = 0.2  # 200ms
-
-    # Proportional number of samples for each phase (constrained by blocksize)
-    total_time = attack_time + decay_time + release_time
-    attack_samples = int((attack_time / total_time) * blocksize)
-    decay_samples = int((decay_time / total_time) * blocksize)
-    release_samples = int((release_time / total_time) * blocksize)
-
-    # Envelope generation for the current block
-    envelope = np.zeros(blocksize, dtype=np.float32)
-
-    # Attack phase
-    if attack_samples > 0:
-        envelope[:attack_samples] = np.linspace(0, 1, attack_samples)
-
-    # Decay phase
-    decay_start = attack_samples
-    decay_end = decay_start + decay_samples
-    if decay_samples > 0:
-        envelope[decay_start:decay_end] = np.linspace(1, sustain_level, decay_samples)
-
-    # Sustain phase
-    sustain_start = decay_end
-    sustain_end = blocksize - release_samples
-    if sustain_end > sustain_start:
-        envelope[sustain_start:sustain_end] = sustain_level
-
-    # Release phase
-    if release_samples > 0:
-        envelope[sustain_end:] = np.linspace(sustain_level, 0, release_samples)
-
-    # Apply the envelope
-    signal *= envelope
-
-    # Normalize the signal to avoid clipping
-    signal = np.clip(signal, -1, 1)
-
-    return signal
-
-
-
 
 wave_types = {
     "midi": make_midi,
     "harmonica": make_harmonica,
     "catmeow": make_catmeow,
-    "piano": make_piano,
 }
 # Argument parsing for --type
 parser = argparse.ArgumentParser(description="Generate audio with different wave types.")
-parser.add_argument("--type", choices=wave_types.keys(), default="piano", help="Type of wave to generate.")
+parser.add_argument("--type", choices=wave_types.keys(), default="harmonica", help="Type of wave to generate.")
 parser.add_argument("--effect", choices=["none", "wah"], default="none", help="Effect to apply (none/wah).")
+parser.add_argument("--output", type=str, default=None, help="Path to save the generated audio as a .wav file.")
 args = parser.parse_args()
 
 # Set wave shape from the argument
@@ -282,7 +226,7 @@ def generate_wah_filter():
     cspace = np.linspace(0, np.pi, ncontour)
     contour = scale * np.log2(2 - np.sin(cspace)) + wah_depth
     wah_filter = [signal.firwin(128, c, window=('kaiser', 0.5)) for c in contour]
-    print("Wah filter generated.")
+    #print("Wah filter generated.")
 
 
 def apply_wah_effect(signal_data):
@@ -352,6 +296,10 @@ def output_callback(out_data, frame_count, time_info, status):
     for key in finished_keys:
         del current_notes[key]
 
+    # Store output in buffer for saving
+    if args.output:
+        audio_buffer.append(output.copy())  # Store a copy to avoid overwriting later
+
     out_data[:] = output.reshape(frame_count, 1)
 
 
@@ -410,6 +358,22 @@ def get_keyboard_event():
         return False
     return True
 
+# Save audio buffer to WAV file after playback stops
+def save_audio_to_file():
+    if args.output:
+        print(f"Saving audio to {args.output}...")
+        output = wave.open(args.output, "wb")
+        output.setnchannels(1)
+        output.setsampwidth(2)
+        output.setframerate(sample_rate)
+
+        # Convert the buffer to a single numpy array and scale to int16
+        sound = np.concatenate(audio_buffer)
+        sound = (sound * 32767).astype(np.int16)  # Scale and convert to 16-bit PCM
+
+        output.writeframes(sound.tobytes())
+        output.close()
+        print(f"Audio saved to {args.output} successfully.")
 
 
 # Start audio stream
@@ -430,4 +394,5 @@ except Exception as e:
 finally:
     output_stream.stop()
     output_stream.close()
+    save_audio_to_file()
     print("Audio stream stopped.")

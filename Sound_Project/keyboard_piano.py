@@ -137,6 +137,7 @@ wave_types = {
 # Argument parsing for --type
 parser = argparse.ArgumentParser(description="Generate audio with different wave types.")
 parser.add_argument("--type", choices=wave_types.keys(), default="piano", help="Type of wave to generate.")
+
 args = parser.parse_args()
 
 # Set wave shape from the argument
@@ -342,4 +343,5 @@ except Exception as e:
 finally:
     output_stream.stop()
     output_stream.close()
+
     print("Audio stream stopped.")
