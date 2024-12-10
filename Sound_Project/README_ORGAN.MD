@@ -27,32 +27,32 @@ The keys from `z` to `p` are mapped to MIDI notes, starting from `A3` (note 57) 
 ### Basic Commands
 1. **Play with Cat Meow and Auto-Wah**
    ```bash
-   python keyboard_organ --type catmeow --effect wah
+   python keyboard_organ.py --type catmeow --effect wah
    ```
    - **Explanation**: The auto-wah effect modulates the filter frequency over time, creating a "wah-wah" sound. This is especially effective for the `catmeow` wave type because the `cat.wav` file contains rich harmonic content, and the modulation highlights these harmonics, creating a dynamic and expressive sound.
 
 2. **Play with MIDI Wave Type**
    ```bash
-   python keyboard_organ --type midi
+   python keyboard_organ.py --type midi
    ```
    - **Explanation**: This uses a basic sine wave to produce simple tones for each note.
 
 3. **Play with Harmonica Wave Type**
    ```bash
-   python keyboard_organ --type harmonica
+   python keyboard_organ.py --type harmonica
    ```
    - **Explanation**: Simulates a harmonica by summing harmonics and applying an envelope to mimic breathiness.
 
 4. **Play Cat Meow Without Effects**
    ```bash
-   python keyboard_organ --type catmeow
+   python keyboard_organ.py --type catmeow
    ```
    - **Explanation**: Plays the cat meow sound as-is, without any additional effects.
 
 ### Exporting Audio to a File
 You can save your performance to a `.wav` file by providing the `--output` argument. For example:
 ```bash
-python keyboard_organ --type harmonica --output demo.wav
+python keyboard_organ.py --type harmonica --output demo.wav
 ```
 - **Explanation**: This will save the generated harmonica sound to `demo.wav` after you press `ESC` to stop the program.
 
