@@ -130,18 +130,17 @@ def make_piano(f):
 
 
 wave_types = {
-    "sine": make_sin,
     "piano": make_piano,
 }
-
+'''
 # Argument parsing for --type
 parser = argparse.ArgumentParser(description="Generate audio with different wave types.")
 parser.add_argument("--type", choices=wave_types.keys(), default="piano", help="Type of wave to generate.")
 
 args = parser.parse_args()
-
+'''
 # Set wave shape from the argument
-wave_shape = args.type
+#wave_shape = args.type
 # Preload notes
 for note in range(128):
     f = 440 * 2 ** ((note - 69) / 12)

@@ -15,7 +15,7 @@ The program also includes an optional **auto-wah effect**, which dynamically mod
 Once you finish playing, pressing the `ESC` key stops the program and saves the generated audio to a `.wav` file if the `--output` argument is provided.
 
 ## Keyboard Mapping
-The keys from `z` to `p` are mapped to MIDI notes, starting from `C3` (note 57) for `z` and ascending chromatically to `E7` (note 82) for `p`. Each key press triggers the corresponding note, and notes can be sustained by holding the key.
+The keys from `z` to `p` are mapped to MIDI notes, starting from `A3` (note 57) for `z` and ascending chromatically to `E7` (note 82) for `p`. Each key press triggers the corresponding note, and notes can be sustained by holding the key.
 
 ## Features
 - Real-time audio synthesis and playback.
